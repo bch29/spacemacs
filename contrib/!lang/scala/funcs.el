@@ -108,3 +108,32 @@ point to the position of the join."
 
 (defun scala/configure-flyspell ()
   (setq-local flyspell-generic-check-word-predicate 'scala/flyspell-verify))
+
+;;; Spark
+
+(defun scala/spark-submit ()
+  "Submit the current project to Spark."
+  (interactive "")
+  (progn
+    (cd (projectile-project-root))
+    (if (get-buffer "*spark*") (kill-buffer "*spark*"))
+    (call-process "ag" nil "*spark*" nil "-l" "-s" "main" "src")
+    (switch-to-buffer "*spark*")
+    (let* ((ag-out (buffer-string))
+           (class-file (substring ag-out (+ 1 (string-match "\\/\\w+\\.scala" ag-out))))
+           (class-name (substring class-file 0 (string-match "\\.scala" class-file))))
+      (kill-buffer)
+      (call-process "/bin/bash" nil "*spark*" nil "-c" "ls target/scala-*/*.jar")
+      (switch-to-buffer "*spark*")
+      (let ((jar-file (substring (buffer-string) 0 -1)))
+        (kill-buffer)
+        (if (get-buffer "*Spark*") (kill-buffer "*Spark*"))
+        (start-process "spark-submit" "*Spark*" "spark-submit"
+                       "--class" class-name
+                       "--master" "local[4]"
+                       jar-file)
+        (display-buffer "*Spark*")
+        (with-selected-window (get-buffer-window "*Spark*")
+          (goto-char (point-max)))
+        ))
+    ))
