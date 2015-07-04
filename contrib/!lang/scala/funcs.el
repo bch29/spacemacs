@@ -108,3 +108,49 @@ point to the position of the join."
 
 (defun scala/configure-flyspell ()
   (setq-local flyspell-generic-check-word-predicate 'scala/flyspell-verify))
+
+;;; Spark
+
+(defun scala/spark-submit ()
+  "Submit the current project to Spark."
+  (interactive "")
+  (progn
+    ; Go to the project root
+    (cd (projectile-project-root))
+    ; If there's already a temporary buffer, kill it
+    (if (get-buffer "*spark-temp*") (kill-buffer "*spark-temp*"))
+    ; Use ag to search for the main class
+    (call-process "ag" nil "*spark-temp*" nil "-l" "-s" "main" "src")
+    (switch-to-buffer "*spark-temp*")
+    ; Use a couple of regexes to change the output of ag into a class name
+    (let* ((ag-out (buffer-string))
+           (class-file (substring ag-out (+ 1 (string-match "\\/\\w+\\.scala" ag-out))))
+           (class-name (substring class-file 0 (string-match "\\.scala" class-file)))
+           ; Find all JAR files in the lib directory and list them in a format Spark understands
+           (include-files (directory-files "lib" nil ".*\.jar"))
+           (include-arg (mapconcat (lambda (path) (concat "lib/" path))
+                                   include-files ",")))
+      ; Kill the temp buffer
+      (kill-buffer)
+      ; Find the packaged JAR file for our program
+      (call-process "/bin/bash" nil "*spark-temp*" nil "-c" "ls target/scala-*/*.jar")
+      (switch-to-buffer "*spark-temp*")
+      (message class-name)
+      (let* ((jar-file (substring (buffer-string) 0 -1))
+             (command-parts (list ))
+             (submit-command (mapconcat 'identity command-parts " ")))
+        (kill-buffer)
+        (if (get-buffer "*Spark*") (kill-buffer "*Spark*"))
+        ; Run the program with spark-submit
+        (let ((process-connection-type t))
+          (start-process "spark-submit" "*Spark*" "spark-submit"
+                         "--class" class-name
+                         "--master" "local[4]"
+                         "--driver-class-path" include-arg
+                         jar-file))
+        ; Display the output to the user, making sure it scrolls down correctly
+        (display-buffer "*Spark*")
+        (with-selected-window (get-buffer-window "*Spark*")
+          (goto-char (point-max)))
+        ))
+    ))

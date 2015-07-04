@@ -35,7 +35,7 @@
     :config
     (progn
       (evil-define-key 'insert ensime-mode-map
-        (kbd ".") 'scala/completing-dot
+        ;; (kbd ".") 'scala/completing-dot
         (kbd "M-.") 'ensime-edit-definition
         (kbd "M-,") 'ensime-pop-find-definition-stack)
 
@@ -94,6 +94,7 @@
         "mbi"     'ensime-sbt-switch
         "mbp"     'ensime-sbt-do-package
         "mbr"     'ensime-sbt-do-run
+        "mbs"     'scala/spark-submit'
 
         "mct"     'ensime-typecheck-current-file
         "mcT"     'ensime-typecheck-all
