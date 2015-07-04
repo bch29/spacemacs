@@ -94,7 +94,7 @@
         "mbi"     'ensime-sbt-switch
         "mbp"     'ensime-sbt-do-package
         "mbr"     'ensime-sbt-do-run
-        "mbs"     'scala/spark-submit'
+        "mbs"     'scala/spark-submit
 
         "mct"     'ensime-typecheck-current-file
         "mcT"     'ensime-typecheck-all
