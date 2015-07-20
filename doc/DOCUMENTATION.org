@@ -266,7 +266,7 @@ For now it is still needed to update the =Spacemacs= repository manually.
 Close Emacs and update the git repository:
 
 #+begin_src sh
-  $ git pull --rebase git submodule sync; git submodule update
+  $ git pull --rebase; git submodule sync; git submodule update
 #+end_src
 
 *Note* It is recommended to update the packages first, see next session.
@@ -480,7 +480,7 @@ done by setting the list =dotspacemacs-configuration-layer-path= in your
 
 *** Setting configuration layers variables
 Some configuration layers have configuration variables to enable specific
-support. For instance the [[../contrib/!tools/git][git layer]] has several configuration variables, they
+support. For instance the [[../contrib/!source-control/git][git layer]] has several configuration variables, they
 can be set directly in the =dotspacemacs-configuration-layers= like this:
 
 #+begin_src emacs-lisp
@@ -1586,7 +1586,7 @@ or symbol under point is used as default input for the search. For instance
 If the tool key is omitted then a default tool will be automatically
 selected for the search. This tool corresponds to the first tool found on the
 system of the list =dotspacemacs-search-tools=, the default order is =ag=,
-=pt=, =ack= then =grep=. For instance ~SPC b b~ will search in the opened
+=pt=, =ack= then =grep=. For instance ~SPC s b~ will search in the opened
 buffers using =pt= if =ag= has not been found on the system.
 
 The tool keys are:
